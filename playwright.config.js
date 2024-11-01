@@ -13,6 +13,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
  */
 module.exports = defineConfig({
   testDir: './tests',
+  snapshotPathTemplate: 'tests/ui/snapshot/{arg}{ext}',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -20,7 +21,12 @@ module.exports = defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 5,
+  expect: {
+    toHaveScreenshot:{
+      maxDiffPixels: 500000,
+    }
+  },
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -39,10 +45,32 @@ module.exports = defineConfig({
     //   use: { ...devices['Desktop Chrome'] },
     // },
 
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
+
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: 'desktop-smoke-test',
+      use: {
+        ...devices['Desktop Chrome'],
+        userAgent: 'staging-automation-test'
+      },
+      grep: /^(?!.*@api).*@smoke.*/
     },
+
+    {
+      name: 'mobile-device',
+      use: { ...devices['Pixel 7'], },
+      grep: /@mobile/,
+      ignoreSnapshots: true
+    },
+
+    {
+      name: 'edge',
+      use: { ...devices['Desktop Edge'] },
+    },
+
 
     // {
     //   name: 'webkit',

@@ -4,20 +4,34 @@
 const { test } = require('./base/base-test');
 
 
-    test('TC-3 Successful login with standard_user using page object', async ({ logPage, dashbPage, cartShopPage }) => {
+    test('TC 3 - Successful login with standard_user using page object', { tag: ['@page-object', '@smoke']}, async ({ logPage, dashbPage, cartShopPage }) => {
 
     await logPage.login(process.env.STANDARD_USER, process.env.PASSWORD)
-    await dashbPage.validateOnPage()
     await dashbPage.clickAddToCart()
     await dashbPage.clickShopCart()
+    await dashbPage.validateOnPage()
+
+    //  // Add items to the cart
+    //  for (const item of clickAddItem) {
+    //     await dashbPage.addItemToCart(item);
+    //   }
+
+    // await dashbPage.validateCartValue();
     await cartShopPage.cartValidatePage()
+    await cartShopPage.cartCheckoutItem()
+    
     
     })
 
-    test('TC-4 Successful login with visual_user using page object', async ({ logPage, dashbPage }) => {
+    test('TC 4 - Successful login with visual_user using page object', { tag: ['@mobile']}, async ({ logPage, dashbPage, cartShopPage }) => {
 
+        // await logPage.login(process.env.VISUAL_USER, process.env.PASSWORD)
+        // await dashbPage.validateOnPage()
         await logPage.login(process.env.VISUAL_USER, process.env.PASSWORD)
+        // await dashbPage.clickAddToCart()
+        // await dashbPage.clickShopCart()
         await dashbPage.validateOnPage()
+        await cartShopPage.cartValidatePage()
         
         })
 
@@ -31,14 +45,22 @@ const { test } = require('./base/base-test');
     //     });
         
 
-    //  test.afterEach(async ({page}, testInfo) => {
-    //     console.log(testInfo.status)
-    //     console.log(testInfo.expectedStatus)
+    test.afterEach(async ({page}, testInfo) => {
 
-    //     if (testInfo.status !== testInfo.expectedStatus) {
-    //         console.log("test failed, perform screenshot")
-    //         await page.screenshot({path: 'failed-screenshot.png', fullPage: true})
-    //     }
-    //  });
+        console.log(testInfo.status)
+        console.log(testInfo.expectedStatus)
+
+        if (testInfo.status !== testInfo.expectedStatus) {
+            console.log("test failed, perform screenshot")
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '_')
+            const filepath = 'screenshot/${timestamp}-${testInfo.title.toLowerCase()}-failed.png'
+            const image = await page.screenshot({fullPage: true})
+
+            testInfo.attach('failed test', {
+                body: image,
+                contentType: 'image/png',
+            })
+        }
+     });
      
         

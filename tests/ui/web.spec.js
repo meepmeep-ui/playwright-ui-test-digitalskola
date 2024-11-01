@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe("Web UI Demo", () => {
+test.describe("Web UI Demo", { tag: ['@smoke']}, () => {
     test("TC-1 Successful login", async ({ page }) => {
 
     // navigation
